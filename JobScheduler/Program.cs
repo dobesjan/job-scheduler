@@ -1,4 +1,6 @@
-﻿using JobScheduler.PluginSystem;
+﻿using JobScheduler.Plugin.Test;
+using JobScheduler;
+using JobScheduler.PluginSystem;
 using JobScheduler.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,12 +23,19 @@ class Program
 	}
 
 	public static IHostBuilder CreateHostBuilder(string[] args) =>
-		Host.CreateDefaultBuilder(args)
-			.ConfigureServices((hostContext, services) =>
+	Host.CreateDefaultBuilder(args)
+		.ConfigureServices((hostContext, services) =>
+		{
+			string connectionString = "Data Source=jobs.db";
+			services.AddSingleton<IJobStore>(new JobStore(connectionString));
+			services.AddSingleton<IPluginManager, PluginManager>(serviceProvider =>
 			{
-				string connectionString = "Data Source=jobs.db";
-				services.AddSingleton<IJobStore>(new JobStore(connectionString));
-				services.AddSingleton<IPluginManager, PluginManager>();
-				services.AddGrpc();
+				var pluginManager = new PluginManager();
+				pluginManager.RegisterPlugin(nameof(ExamplePlugin), new ExamplePlugin());
+				return pluginManager;
 			});
+			services.AddHostedService<JobSchedulerBackgroundService>();
+			services.AddGrpc();
+		});
+
 }

@@ -17,6 +17,11 @@
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\JobScheduler.Plugin.Test\JobScheduler.Plugin.Test.csproj" />
+    <ProjectReference Include="..\JobScheduler.PluginSystem\JobScheduler.PluginSystem.csproj" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<Protobuf Include="scheduler.proto" GrpcServices="Server" />
 	</ItemGroup>

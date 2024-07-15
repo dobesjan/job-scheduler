@@ -14,5 +14,7 @@ namespace JobScheduler.Storage
 		public string Parameters { get; set; }
 		public string Status { get; set; }
 		public string Result { get; set; }
+		public int Interval { get; set; }
+		public int NextExecution { get; set; }
 	}
 }

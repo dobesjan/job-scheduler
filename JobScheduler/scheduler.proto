@@ -11,14 +11,15 @@ message ScheduleJobRequest {
   string jobName = 1;
   string pluginName = 2;
   string parameters = 3;
+  int32 interval = 4;
 }
 
 message ScheduleJobResponse {
-  string jobId = 1;
+  int32 jobId = 1;
 }
 
 message GetJobStatusRequest {
-  string jobId = 1;
+  int32 jobId = 1;
 }
 
 message GetJobStatusResponse {

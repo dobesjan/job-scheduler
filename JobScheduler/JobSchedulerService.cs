@@ -25,10 +25,10 @@ namespace JobScheduler
 
 		public override async Task<ScheduleJobResponse> ScheduleJob(ScheduleJobRequest request, ServerCallContext context)
 		{
-			var jobId = await _jobStore.AddJobAsync(request.JobName, request.PluginName, request.Parameters);
+			var jobId = await _jobStore.AddJobAsync(request.JobName, request.PluginName, request.Parameters, request.Interval);
 			// Schedule the job (e.g., using a timer or a background service)
 			// ...
-			return new ScheduleJobResponse { JobId = jobId.ToString() };
+			return new ScheduleJobResponse { JobId = jobId };
 		}
 
 		public override async Task<GetJobStatusResponse> GetJobStatus(GetJobStatusRequest request, ServerCallContext context)
