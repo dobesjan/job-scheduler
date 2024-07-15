@@ -1,0 +1,38 @@
+# .NET Core
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.user
+*.vscode/
+*.vs/
+*.suo
+*.cache
+*.csproj.user
+
+# Visual Studio files
+*.sln
+*.csproj.user
+*.vcxproj
+*.vcxproj.filters
+.vsconfig
+
+# Rider files
+.idea/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Test Results
+TestResults/
+
+# MSTest specific
+*.trx
+
+# Unity generated files
+Temp/
+Library/
+Build/

@@ -1,0 +1,27 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "JobScheduler";
+
+service JobScheduler {
+  rpc ScheduleJob (ScheduleJobRequest) returns (ScheduleJobResponse);
+  rpc GetJobStatus (GetJobStatusRequest) returns (GetJobStatusResponse);
+}
+
+message ScheduleJobRequest {
+  string jobName = 1;
+  string pluginName = 2;
+  string parameters = 3;
+}
+
+message ScheduleJobResponse {
+  string jobId = 1;
+}
+
+message GetJobStatusRequest {
+  string jobId = 1;
+}
+
+message GetJobStatusResponse {
+  string status = 1;
+  string result = 2;
+}
