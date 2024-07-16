@@ -23,7 +23,7 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Protobuf Include="scheduler.proto" GrpcServices="Server" />
+		<Protobuf Include="..\scheduler.proto" GrpcServices="Both" />
 	</ItemGroup>
 
 </Project>
