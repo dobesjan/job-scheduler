@@ -4,7 +4,7 @@ using WebMonitoring.DataAccess.Data;
 using WebMonitoring.DataAccess.UnitOfWork;
 using WebMonitoring.Models;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -65,6 +65,8 @@ monitoredWebPageApi.MapDelete("/{id}", async (int id, IUnitOfWork unitOfWork) =>
 	unitOfWork.MonitoredWebPageRepository.Save();
 	return Results.NoContent();
 });
+
+app.Run();
 
 [JsonSerializable(typeof(MonitoredWebPage[]))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext
