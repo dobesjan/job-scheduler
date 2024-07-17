@@ -27,6 +27,7 @@ namespace JobScheduler.Plugin.WebPage
 
 					var result = new WebpageResult
 					{
+						Id = Guid.NewGuid(),
 						Url = url,
 						ResponseTime = responseTime,
 						StatusCode = statusCode,
@@ -39,6 +40,7 @@ namespace JobScheduler.Plugin.WebPage
 				{
 					var errorResult = new WebpageResult
 					{
+						Id = Guid.NewGuid(),
 						Url = url,
 						ErrorMessage = ex.Message
 					};
