@@ -4,6 +4,9 @@ using JobScheduler.PluginSystem;
 using JobScheduler.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using JobScheduler.Configuration;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 class Program
 {
@@ -24,9 +27,16 @@ class Program
 
 	public static IHostBuilder CreateHostBuilder(string[] args) =>
 	Host.CreateDefaultBuilder(args)
+		.ConfigureAppConfiguration((hostingContext, config) =>
+		{
+			config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+		})
 		.ConfigureServices((hostContext, services) =>
 		{
-			string connectionString = "Data Source=jobs.db";
+			services.Configure<AppOptions>(hostContext.Configuration.GetSection("App"));
+			var appOptions = hostContext.Configuration.GetSection("App").Get<AppOptions>();
+
+			string connectionString = appOptions.DefaultConnection;
 			services.AddSingleton<IJobStore>(new JobStore(connectionString));
 			services.AddSingleton<IPluginManager, PluginManager>(serviceProvider =>
 			{
@@ -37,13 +47,15 @@ class Program
 			services.AddHostedService<JobSchedulerBackgroundService>();
 			services.AddGrpc();
 
+			string clientUrl = appOptions.DataProcessorUrl;
 			services.AddGrpcClient<DataProcessor.DataProcessorClient>(options =>
 			{
-				options.Address = new Uri("https://localhost:5001");
+				options.Address = new Uri(clientUrl);
 			});
 
 			// Register DataProcessorClient as a singleton
 			services.AddSingleton<DataProcessorClient>();
+			
 		});
 
 }

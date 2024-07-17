@@ -7,6 +7,8 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Grpc.Net.Client;
 using JobScheduler;
+using JobScheduler.Configuration;
+using Microsoft.Extensions.Options;
 
 public class JobSchedulerBackgroundService : IHostedService, IDisposable
 {
@@ -17,13 +19,15 @@ public class JobSchedulerBackgroundService : IHostedService, IDisposable
 	private CancellationTokenSource _cancellationTokenSource;
 	private readonly ConcurrentQueue<(int JobId, string Result)> _jobResultsQueue;
 	private Task _resultProcessorTask;
+	private readonly AppOptions _appOptions;
 
-	public JobSchedulerBackgroundService(ILogger<JobSchedulerBackgroundService> logger, IServiceProvider serviceProvider, DataProcessor.DataProcessorClient dataProcessorClient)
+	public JobSchedulerBackgroundService(ILogger<JobSchedulerBackgroundService> logger, IServiceProvider serviceProvider, DataProcessor.DataProcessorClient dataProcessorClient, IOptions<AppOptions> options)
 	{
 		_logger = logger;
 		_serviceProvider = serviceProvider;
 		_dataProcessorClient = dataProcessorClient;
 		_jobResultsQueue = new ConcurrentQueue<(int JobId, string Result)>();
+		_appOptions = options.Value;
 	}
 
 	public Task StartAsync(CancellationToken cancellationToken)
@@ -31,7 +35,7 @@ public class JobSchedulerBackgroundService : IHostedService, IDisposable
 		_logger.LogInformation("Job Scheduler Background Service is starting.");
 
 		_cancellationTokenSource = new CancellationTokenSource();
-		_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+		_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(_appOptions.Interval));
 		_resultProcessorTask = Task.Run(ProcessJobResultsQueueAsync, _cancellationTokenSource.Token);
 
 		return Task.CompletedTask;

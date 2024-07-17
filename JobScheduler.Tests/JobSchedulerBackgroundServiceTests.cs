@@ -1,5 +1,7 @@
-﻿using JobScheduler.Storage;
+﻿using JobScheduler.Configuration;
+using JobScheduler.Storage;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -19,6 +21,7 @@ namespace JobScheduler.PluginSystem.Tests
 			var mockServiceProvider = new Mock<IServiceProvider>();
 			var mockJobStore = new Mock<IJobStore>();
 			var mockPluginManager = new Mock<IPluginManager>();
+			var mockOptions = new Mock<IOptions<AppOptions>>();
 
 			mockServiceProvider.Setup(sp => sp.GetService(typeof(IJobStore))).Returns(mockJobStore.Object);
 			mockServiceProvider.Setup(sp => sp.GetService(typeof(IPluginManager))).Returns(mockPluginManager.Object);
@@ -32,7 +35,7 @@ namespace JobScheduler.PluginSystem.Tests
 			mockJobStore.Setup(js => js.GetPendingJobsAsync()).ReturnsAsync(jobs);
 			mockPluginManager.Setup(pm => pm.GetPlugin(It.IsAny<string>())).Returns(new Mock<IJobPlugin>().Object);
 
-			var service = new JobSchedulerBackgroundService(mockLogger.Object, mockServiceProvider.Object, mockDataProcessor.Object);
+			var service = new JobSchedulerBackgroundService(mockLogger.Object, mockServiceProvider.Object, mockDataProcessor.Object, mockOptions.Object);
 			await service.StartAsync(CancellationToken.None);
 
 			await Task.Delay(1000); // Allow some time for processing
@@ -48,8 +51,9 @@ namespace JobScheduler.PluginSystem.Tests
 			var mockServiceProvider = new Mock<IServiceProvider>();
 			var mockJobStore = new Mock<IJobStore>();
 			var mockPluginManager = new Mock<IPluginManager>();
+			var mockOptions = new Mock<IOptions<AppOptions>>();
 
-			var service = new JobSchedulerBackgroundService(mockLogger.Object, mockServiceProvider.Object, mockDataProcessor.Object);
+			var service = new JobSchedulerBackgroundService(mockLogger.Object, mockServiceProvider.Object, mockDataProcessor.Object, mockOptions.Object);
 			await service.StartAsync(CancellationToken.None);
 
 			await service.StopAsync(CancellationToken.None);
