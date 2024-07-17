@@ -36,6 +36,14 @@ class Program
 			});
 			services.AddHostedService<JobSchedulerBackgroundService>();
 			services.AddGrpc();
+
+			services.AddGrpcClient<DataProcessor.DataProcessorClient>(options =>
+			{
+				options.Address = new Uri("https://localhost:5001");
+			});
+
+			// Register DataProcessorClient as a singleton
+			services.AddSingleton<DataProcessorClient>();
 		});
 
 }

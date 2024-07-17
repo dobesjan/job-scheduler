@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "JobScheduler";
+
+service DataProcessor {
+  rpc SendResult (SendResultRequest) returns (SendResultResponse);
+}
+
+message SendResultRequest {
+  int32 jobId = 1;
+  string result = 2;
+}
+
+message SendResultResponse {
+  int32 jobId = 1;
+  string result = 2;
+}

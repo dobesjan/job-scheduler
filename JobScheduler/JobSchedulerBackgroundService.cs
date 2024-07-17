@@ -3,18 +3,27 @@ using JobScheduler.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Grpc.Net.Client;
+using JobScheduler;
 
 public class JobSchedulerBackgroundService : IHostedService, IDisposable
 {
 	private readonly ILogger<JobSchedulerBackgroundService> _logger;
 	private readonly IServiceProvider _serviceProvider;
+	private readonly DataProcessor.DataProcessorClient _dataProcessorClient;
 	private Timer _timer;
 	private CancellationTokenSource _cancellationTokenSource;
+	private readonly ConcurrentQueue<(int JobId, string Result)> _jobResultsQueue;
+	private Task _resultProcessorTask;
 
-	public JobSchedulerBackgroundService(ILogger<JobSchedulerBackgroundService> logger, IServiceProvider serviceProvider)
+	public JobSchedulerBackgroundService(ILogger<JobSchedulerBackgroundService> logger, IServiceProvider serviceProvider, DataProcessor.DataProcessorClient dataProcessorClient)
 	{
 		_logger = logger;
 		_serviceProvider = serviceProvider;
+		_dataProcessorClient = dataProcessorClient;
+		_jobResultsQueue = new ConcurrentQueue<(int JobId, string Result)>();
 	}
 
 	public Task StartAsync(CancellationToken cancellationToken)
@@ -23,6 +32,7 @@ public class JobSchedulerBackgroundService : IHostedService, IDisposable
 
 		_cancellationTokenSource = new CancellationTokenSource();
 		_timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+		_resultProcessorTask = Task.Run(ProcessJobResultsQueueAsync, _cancellationTokenSource.Token);
 
 		return Task.CompletedTask;
 	}
@@ -57,7 +67,8 @@ public class JobSchedulerBackgroundService : IHostedService, IDisposable
 			try
 			{
 				var result = await plugin.ExecuteAsync(job.Parameters);
-				//TODO: Handle statuses
+				// Enqueue the result
+				_jobResultsQueue.Enqueue((job.JobId, result));
 				await jobStore.UpdateJobStatusAsync(job.JobId, "Completed", result);
 				_logger.LogInformation($"Job {job.JobId} completed successfully.");
 			}
@@ -65,6 +76,38 @@ public class JobSchedulerBackgroundService : IHostedService, IDisposable
 			{
 				await jobStore.UpdateJobStatusAsync(job.JobId, "Failed", ex.Message);
 				_logger.LogError(ex, $"Job {job.JobId} failed.");
+			}
+		}
+	}
+
+	private async Task ProcessJobResultsQueueAsync()
+	{
+		while (!_cancellationTokenSource.Token.IsCancellationRequested)
+		{
+			if (_jobResultsQueue.TryDequeue(out var jobResult))
+			{
+				try
+				{
+					var request = new SendResultRequest
+					{
+						JobId = jobResult.JobId,
+						Result = jobResult.Result
+					};
+
+					var response = await _dataProcessorClient.SendResultAsync(request);
+					_logger.LogInformation($"Sent result for job {response.JobId}: {response.Result}");
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, $"Failed to send result for job {jobResult.JobId}");
+					// Re-enqueue the job result for retrying
+					_jobResultsQueue.Enqueue(jobResult);
+				}
+			}
+			else
+			{
+				// Wait before retrying
+				await Task.Delay(1000);
 			}
 		}
 	}
