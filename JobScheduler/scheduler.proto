@@ -5,6 +5,7 @@ option csharp_namespace = "JobScheduler";
 service JobScheduler {
   rpc ScheduleJob (ScheduleJobRequest) returns (ScheduleJobResponse);
   rpc GetJobStatus (GetJobStatusRequest) returns (GetJobStatusResponse);
+  rpc GetJob (GetJobRequest) returns (GetJobResponse);
 }
 
 message ScheduleJobRequest {
@@ -12,6 +13,7 @@ message ScheduleJobRequest {
   string pluginName = 2;
   string parameters = 3;
   int32 interval = 4;
+  string entityId = 5;
 }
 
 message ScheduleJobResponse {
@@ -25,4 +27,13 @@ message GetJobStatusRequest {
 message GetJobStatusResponse {
   string status = 1;
   string result = 2;
+}
+
+message GetJobRequest {
+	string entityId = 1;
+}
+
+message GetJobResponse {
+	string jobName = 1;
+	string pluginName = 2;
 }

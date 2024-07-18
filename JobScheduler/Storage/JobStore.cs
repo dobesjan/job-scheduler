@@ -41,6 +41,7 @@ namespace JobScheduler.Storage
 			await connection.ExecuteAsync(
 				@"CREATE TABLE IF NOT EXISTS Jobs (
                 JobId INTEGER PRIMARY KEY AUTOINCREMENT,
+				EntityId TEXT NOT NULL,
                 JobName TEXT NOT NULL,
                 PluginName TEXT NOT NULL,
                 Parameters TEXT,
@@ -51,13 +52,13 @@ namespace JobScheduler.Storage
               );");
 		}
 
-		public async Task<int> AddJobAsync(string jobName, string pluginName, string parameters, int interval)
+		public async Task<int> AddJobAsync(string jobName, string pluginName, string parameters, int interval, string entityId)
 		{
 			using var connection = GetConnection();
 			var nextExecution = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + interval;
 			var jobId = await connection.ExecuteScalarAsync<int>(
-				"INSERT INTO Jobs (JobName, PluginName, Parameters, Status, Interval, NextExecution) VALUES (@JobName, @PluginName, @Parameters, 'Scheduled', @Interval, @NextExecution); SELECT last_insert_rowid();",
-				new { JobName = jobName, PluginName = pluginName, Parameters = parameters, Interval = interval, NextExecution = nextExecution });
+				"INSERT INTO Jobs (JobName, PluginName, Parameters, Status, Interval, NextExecution, EntityId) VALUES (@JobName, @PluginName, @Parameters, 'Scheduled', @Interval, @NextExecution, @EntityId); SELECT last_insert_rowid();",
+				new { JobName = jobName, PluginName = pluginName, Parameters = parameters, Interval = interval, NextExecution = nextExecution, EntityId = entityId });
 			return jobId;
 		}
 
@@ -65,6 +66,12 @@ namespace JobScheduler.Storage
 		{
 			using var connection = GetConnection();
 			return await connection.QueryFirstOrDefaultAsync<Job>("SELECT * FROM Jobs WHERE JobId = @JobId", new { JobId = jobId });
+		}
+
+		public async Task<Job> GetJobAsync(string entityId)
+		{
+			using var connection = GetConnection();
+			return await connection.QueryFirstOrDefaultAsync<Job>("SELECT * FROM Jobs WHERE EntityId = @EntityId", new { EntityId = entityId });
 		}
 
 		public async Task<IEnumerable<Job>> GetPendingJobsAsync()

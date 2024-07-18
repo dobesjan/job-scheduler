@@ -31,7 +31,7 @@ namespace JobScheduler.Tests
 		{
 			using var jobStore = await InitializeJobStoreAsync();
 
-			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60);
+			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60, "1");
 
 			var job = await jobStore.GetJobAsync(jobId);
 
@@ -47,7 +47,7 @@ namespace JobScheduler.Tests
 		{
 			using var jobStore = await InitializeJobStoreAsync();
 
-			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60);
+			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60, "2");
 			var job = await jobStore.GetJobAsync(jobId);
 
 			Assert.NotNull(job);
@@ -61,8 +61,8 @@ namespace JobScheduler.Tests
 		{
 			using var jobStore = await InitializeJobStoreAsync();
 
-			await jobStore.AddJobAsync("TestJob1", "TestPlugin1", "{}", 0);
-			await jobStore.AddJobAsync("TestJob2", "TestPlugin2", "{}", 0);
+			await jobStore.AddJobAsync("TestJob1", "TestPlugin1", "{}", 0, "3");
+			await jobStore.AddJobAsync("TestJob2", "TestPlugin2", "{}", 0, "4");
 
 			var jobs = await jobStore.GetPendingJobsAsync();
 
@@ -74,10 +74,10 @@ namespace JobScheduler.Tests
 		{
 			using var jobStore = await InitializeJobStoreAsync();
 
-			var jobId1 = await jobStore.AddJobAsync("TestJob1", "TestPlugin1", "{}", 100);
+			var jobId1 = await jobStore.AddJobAsync("TestJob1", "TestPlugin1", "{}", 100, "5");
 			await Task.Delay(1000); // Ensure a different NextExecution timestamp
-			var jobId2 = await jobStore.AddJobAsync("TestJob2", "TestPlugin2", "{}", 0);
-			var jobId3 = await jobStore.AddJobAsync("TestJob3", "TestPlugin3", "{}", 500);
+			var jobId2 = await jobStore.AddJobAsync("TestJob2", "TestPlugin2", "{}", 0, "6");
+			var jobId3 = await jobStore.AddJobAsync("TestJob3", "TestPlugin3", "{}", 500, "7");
 
 			var nextJob = await jobStore.GetNextJobAsync();
 
@@ -90,7 +90,7 @@ namespace JobScheduler.Tests
 		{
 			using var jobStore = await InitializeJobStoreAsync();
 
-			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60);
+			var jobId = await jobStore.AddJobAsync("TestJob", "TestPlugin", "{}", 60, "8");
 			await jobStore.UpdateJobStatusAsync(jobId, "Completed", "Success");
 
 			var job = await jobStore.GetJobAsync(jobId);

@@ -25,9 +25,7 @@ namespace JobScheduler
 
 		public override async Task<ScheduleJobResponse> ScheduleJob(ScheduleJobRequest request, ServerCallContext context)
 		{
-			var jobId = await _jobStore.AddJobAsync(request.JobName, request.PluginName, request.Parameters, request.Interval);
-			// Schedule the job (e.g., using a timer or a background service)
-			// ...
+			var jobId = await _jobStore.AddJobAsync(request.JobName, request.PluginName, request.Parameters, request.Interval, request.EntityId);
 			return new ScheduleJobResponse { JobId = jobId };
 		}
 
@@ -35,6 +33,12 @@ namespace JobScheduler
 		{
 			var job = await _jobStore.GetJobAsync(request.JobId);
 			return new GetJobStatusResponse { Status = job.Status, Result = job.Result };
+		}
+
+		public override async Task<GetJobResponse> GetJob(GetJobRequest request, ServerCallContext context)
+		{
+			var job = await _jobStore.GetJobAsync(request.EntityId);
+			return new GetJobResponse { JobName = job.JobName, PluginName = job.PluginName };
 		}
 	}
 }
