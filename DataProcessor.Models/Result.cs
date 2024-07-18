@@ -11,6 +11,7 @@ namespace DataProcessor.Models
 		public Guid Id { get; set; }
 		public DateTime DateTime { get; set; }
 		public string EntityId { get; set; }
+		public int EntityTypeId { get; set; }
 		public bool HasError { get; set; }
 		public string ErrorMessage { get; set; }
 	}

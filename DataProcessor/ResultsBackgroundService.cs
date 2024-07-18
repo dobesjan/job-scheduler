@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WebMonitoring.Models;
 
 namespace DataProcessor
 {
@@ -64,15 +65,30 @@ namespace DataProcessor
 				if (_jobResultsQueue.TryDequeue(out var jobResult))
 				{
 					var content = new StringContent(JsonSerializer.Serialize(jobResult), Encoding.UTF8, "application/json");
-					var response = await _httpClient.PostAsync($"{_appOptions.WebApiUrl}/monitoredWebPages", content);
 
-					if (response.IsSuccessStatusCode)
+					var result = jobResult.GetResult();
+					HttpResponseMessage response = null;
+
+					switch (result.EntityTypeId)
 					{
-						_logger.LogInformation($"Successfully sent result for JobId: {jobResult.JobId}");
+						case (int)EMonitoredEntityType.WebPage:
+							response = await _httpClient.PostAsync($"{_appOptions.WebApiUrl}/monitoredWebPages", content);
+							break;
+						default:
+							_logger.LogError($"Job with id '{jobResult.JobId}' has unknown entity type id '{result.EntityTypeId}'");
+							break;
 					}
-					else
+
+					if (response != null)
 					{
-						_logger.LogError($"Failed to send result for JobId: {jobResult.JobId}. Status Code: {response.StatusCode}");
+						if (response.IsSuccessStatusCode)
+						{
+							_logger.LogInformation($"Successfully sent result for JobId: {jobResult.JobId}");
+						}
+						else
+						{
+							_logger.LogError($"Failed to send result for JobId: {jobResult.JobId}. Status Code: {response.StatusCode}");
+						}
 					}
 				}
 				else

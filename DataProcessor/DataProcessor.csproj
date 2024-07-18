@@ -21,6 +21,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\DataProcessor.Models\DataProcessor.Models.csproj" />
+	  <ProjectReference Include="..\WebMonitoring.Models\WebMonitoring.Models.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
