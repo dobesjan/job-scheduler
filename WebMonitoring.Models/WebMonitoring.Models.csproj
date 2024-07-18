@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\JobScheduler.Plugin.WebPage\JobScheduler.Plugin.WebPage.csproj" />
+  </ItemGroup>
+
 </Project>
