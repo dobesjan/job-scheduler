@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DataProcessor.Models\DataProcessor.Models.csproj" />
     <ProjectReference Include="..\JobScheduler.PluginSystem\JobScheduler.PluginSystem.csproj" />
   </ItemGroup>
 

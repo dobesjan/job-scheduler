@@ -28,11 +28,13 @@ namespace JobScheduler.Plugin.WebPage
 					var result = new WebpageResult
 					{
 						Id = Guid.NewGuid(),
+						EntityId = config.EntityId,
 						Url = url,
 						DateTime = DateTime.UtcNow,
 						ResponseTime = responseTime,
 						StatusCode = statusCode,
-						ContentLength = contentLength
+						ContentLength = contentLength,
+						HasError = false
 					};
 
 					return JsonConvert.SerializeObject(result);
@@ -42,8 +44,10 @@ namespace JobScheduler.Plugin.WebPage
 					var errorResult = new WebpageResult
 					{
 						Id = Guid.NewGuid(),
+						EntityId = config.EntityId,
 						DateTime = DateTime.UtcNow,
 						Url = url,
+						HasError = true,
 						ErrorMessage = ex.Message
 					};
 					return JsonConvert.SerializeObject(errorResult);

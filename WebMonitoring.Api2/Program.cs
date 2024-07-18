@@ -1,3 +1,4 @@
+using JobScheduler.Plugin.WebPage;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using WebMonitoring.DataAccess.Data;
@@ -19,6 +20,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
+//// Web page monitored entity
 // Define API endpoints for MonitoredWebPage
 var monitoredWebPageApi = app.MapGroup("/monitoredWebPages");
 
@@ -64,6 +66,31 @@ monitoredWebPageApi.MapDelete("/{id}", async (int id, IUnitOfWork unitOfWork) =>
 	unitOfWork.MonitoredWebPageRepository.Remove(monitoredWebPage);
 	unitOfWork.MonitoredWebPageRepository.Save();
 	return Results.NoContent();
+});
+
+//// Web page results
+
+// Get all results for web page
+monitoredWebPageApi.MapGet("/listResults/{pageEntityId}", async (IUnitOfWork unitOfWork, string pageEntityId, int offset = 0, int limit = 10) =>
+{
+	var monitoredWebPages = unitOfWork.WebpageResultRepository.GetAll(mw => mw.EntityId == pageEntityId, offset, limit);
+	return Results.Ok(monitoredWebPages);
+});
+
+// Get a single web page result by ID
+monitoredWebPageApi.MapGet("result/{id}", async (string id, IUnitOfWork unitOfWork) =>
+{
+	Guid guid = Guid.Parse(id);
+	var monitoredWebPage = unitOfWork.WebpageResultRepository.Get(x => x.Id == guid);
+	return monitoredWebPage != null ? Results.Ok(monitoredWebPage) : Results.NotFound();
+});
+
+// Add a new monitored web page
+monitoredWebPageApi.MapPost("/addResult", async (WebpageResult result, IUnitOfWork unitOfWork) =>
+{
+	unitOfWork.WebpageResultRepository.Add(result);
+	unitOfWork.MonitoredWebPageRepository.Save();
+	return Results.Created($"/result/{result.Id}", result);
 });
 
 app.Run();

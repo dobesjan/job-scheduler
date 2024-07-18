@@ -20,6 +20,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\DataProcessor.Models\DataProcessor.Models.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Protobuf Include="..\scheduler.proto" GrpcServices="Both" />
 		<Protobuf Include="..\processor.proto" GrpcServices="Both" />
 	</ItemGroup>

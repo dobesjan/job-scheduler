@@ -5,18 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static JobScheduler.JobSchedulerClient;
 
 namespace DataProcessor
 {
 	public class JobSchedulerClient
 	{
-		private readonly JobSchedulerClient _client;
+		private readonly JobScheduler.JobScheduler.JobSchedulerClient _client;
 
 		public JobSchedulerClient(string address)
 		{
 			var channel = GrpcChannel.ForAddress(address);
-			_client = new JobScheduler.JobSchedulerClient(channel);
+			_client = new JobScheduler.JobScheduler.JobSchedulerClient(channel);
 		}
 
 		public async Task<ScheduleJobResponse> ScheduleJob(int jobId)

@@ -8,6 +8,7 @@ namespace JobScheduler.Plugin.WebPage
 {
 	public class WebpageConfig
 	{
+		public string EntityId { get; set; }
 		public string Url { get; set; }
 	}
 }
